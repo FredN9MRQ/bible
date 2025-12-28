@@ -18,9 +18,13 @@ app.use(express.json());
 // Load reading plan data
 let readingPlanData;
 try {
-  const dataPath = path.join(__dirname, '../data/reading_plan.json');
+  // Try Docker path first, then fall back to development path
+  const dockerPath = '/app/data/reading_plan.json';
+  const devPath = path.join(__dirname, '../data/reading_plan.json');
+  const dataPath = fs.existsSync(dockerPath) ? dockerPath : devPath;
+
   readingPlanData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-  console.log('Reading plan data loaded successfully');
+  console.log(`Reading plan data loaded successfully from ${dataPath}`);
 } catch (error) {
   console.error('Error loading reading plan data:', error);
   process.exit(1);
