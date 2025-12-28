@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 function App() {
   // Load saved plan preference (defaults to 24_month for 2-year plan)
@@ -49,7 +49,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/reading/today/${selectedPlan}`);
+      const response = await fetch(`${API_URL}/reading/today/${selectedPlan}`);
       const data = await response.json();
 
       if (data.success) {
