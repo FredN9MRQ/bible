@@ -1,0 +1,121 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "bible reading",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "GetTodayReadingIntent",
+          "slots": [],
+          "samples": [
+            "what's today's reading",
+            "what should I read today",
+            "today's reading",
+            "what's the reading for today",
+            "tell me today's reading",
+            "get today's reading"
+          ]
+        },
+        {
+          "name": "GetDateReadingIntent",
+          "slots": [
+            {
+              "name": "month",
+              "type": "AMAZON.Month"
+            },
+            {
+              "name": "day",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "what's the reading for {month} {day}",
+            "reading for {month} {day}",
+            "tell me the reading for {month} {day}",
+            "what should I read on {month} {day}",
+            "get the reading for {month} {day}"
+          ]
+        },
+        {
+          "name": "MarkCompleteIntent",
+          "slots": [],
+          "samples": [
+            "mark today complete",
+            "mark today's reading complete",
+            "I finished today's reading",
+            "mark as done",
+            "I'm done with today",
+            "completed today's reading"
+          ]
+        },
+        {
+          "name": "GetProgressIntent",
+          "slots": [],
+          "samples": [
+            "what's my progress",
+            "how am I doing",
+            "show my progress",
+            "reading progress",
+            "how many readings have I completed",
+            "get my progress"
+          ]
+        },
+        {
+          "name": "ChangePlanIntent",
+          "slots": [
+            {
+              "name": "planType",
+              "type": "PlanType"
+            }
+          ],
+          "samples": [
+            "switch to {planType} plan",
+            "change to {planType} plan",
+            "use {planType} plan",
+            "set plan to {planType}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "PlanType",
+          "values": [
+            {
+              "name": {
+                "value": "one year",
+                "synonyms": ["1 year", "twelve month", "12 month"]
+              }
+            },
+            {
+              "name": {
+                "value": "two year",
+                "synonyms": ["2 year", "twenty four month", "24 month"]
+              }
+            },
+            {
+              "name": {
+                "value": "four year",
+                "synonyms": ["4 year", "forty eight month", "48 month"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

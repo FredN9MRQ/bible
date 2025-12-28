@@ -1,0 +1,68 @@
+version: '3.8'
+
+# Production Docker Compose for M'Cheyne Bible Reading Plan
+# Designed to work with Caddy reverse proxy
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile.backend
+    container_name: bible-reading-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - ../data/reading_plan.json:/app/data/reading_plan.json:ro
+    networks:
+      - bible-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Frontend PWA
+  frontend:
+    build:
+      context: ../
+      dockerfile: deployment/Dockerfile.frontend
+      args:
+        - VITE_API_URL=/api
+    container_name: bible-reading-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - bible-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # Internal Nginx (for serving frontend)
+  internal-nginx:
+    image: nginx:alpine
+    container_name: bible-reading-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"  # Expose on port 8080 for Caddy
+    volumes:
+      - ./nginx-internal.conf:/etc/nginx/nginx.conf:ro
+      - frontend-dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - bible-network
+
+networks:
+  bible-network:
+    driver: bridge
+
+volumes:
+  frontend-dist:

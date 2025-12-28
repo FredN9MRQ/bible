@@ -1,0 +1,37 @@
+# Caddy configuration for M'Cheyne Bible Reading Plan
+# Replace bible.yourdomain.com with your actual domain
+
+bible.yourdomain.com {
+    # Automatic HTTPS from Let's Encrypt
+    # Caddy handles this automatically!
+
+    # Reverse proxy to the Docker container
+    reverse_proxy localhost:8080
+
+    # Compression
+    encode gzip
+
+    # Logs (optional)
+    log {
+        output file /var/log/caddy/bible-reading.log
+    }
+
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent clickjacking
+        X-Frame-Options "SAMEORIGIN"
+        # Prevent MIME sniffing
+        X-Content-Type-Options "nosniff"
+        # XSS Protection
+        X-XSS-Protection "1; mode=block"
+        # Referrer Policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}
+
+# Alternative: If you want www to redirect to non-www
+www.bible.yourdomain.com {
+    redir https://bible.yourdomain.com{uri} permanent
+}

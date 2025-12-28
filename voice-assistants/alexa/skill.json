@@ -1,0 +1,53 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "summary": "Daily Bible reading plan to read through the entire Bible",
+          "examplePhrases": [
+            "Alexa, ask Bible Reading what's today's reading",
+            "Alexa, ask Bible Reading for March fifteenth",
+            "Alexa, ask Bible Reading to mark today complete"
+          ],
+          "keywords": [
+            "bible",
+            "reading",
+            "scripture",
+            "devotional",
+            "mcheyne",
+            "christian"
+          ],
+          "name": "M'Cheyne Bible Reading Plan",
+          "description": "Get your daily Bible reading from the M'Cheyne reading plan. Choose from 1-year, 2-year, or 4-year plans to read through the entire Bible. Track your progress and never miss a reading.",
+          "smallIconUri": "https://yourdomain.com/icons/108x108.png",
+          "largeIconUri": "https://yourdomain.com/icons/512x512.png"
+        }
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "Say 'Alexa, open Bible Reading' to start. Then ask for today's reading or a specific date.",
+      "category": "RELIGION_AND_SPIRITUALITY",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:YOUR_AWS_ACCOUNT_ID:function:BibleReadingPlan"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "locales": {
+        "en-US": {
+          "privacyPolicyUrl": "https://yourdomain.com/privacy"
+        }
+      }
+    }
+  }
+}
