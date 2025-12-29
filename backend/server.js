@@ -103,6 +103,27 @@ app.get('/api/reading/today/:planType', (req, res) => {
   });
 });
 
+// Get all readings for a specific plan
+app.get('/api/reading/all/:planType', (req, res) => {
+  const { planType } = req.params;
+  const plan = readingPlanData.plans[planType];
+
+  if (!plan) {
+    return res.status(404).json({
+      success: false,
+      message: 'Plan not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    planType,
+    planName: plan.name,
+    totalDays: plan.total_days,
+    readings: plan.readings
+  });
+});
+
 // Get reading for specific date
 app.get('/api/reading/:planType/:month/:day', (req, res) => {
   const { planType, month, day } = req.params;

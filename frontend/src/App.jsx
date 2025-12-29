@@ -11,8 +11,10 @@ function App() {
   });
 
   const [todayReading, setTodayReading] = useState(null);
+  const [allReadings, setAllReadings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [view, setView] = useState('today'); // 'today' or 'all'
   const [completedReadings, setCompletedReadings] = useState(() => {
     const saved = localStorage.getItem('completedReadings');
     return saved ? JSON.parse(saved) : {};
@@ -42,8 +44,12 @@ function App() {
   }, [selectedPlan]);
 
   useEffect(() => {
-    fetchTodayReading();
-  }, [selectedPlan]);
+    if (view === 'today') {
+      fetchTodayReading();
+    } else {
+      fetchAllReadings();
+    }
+  }, [selectedPlan, view]);
 
   const fetchTodayReading = async () => {
     setLoading(true);
@@ -59,6 +65,26 @@ function App() {
       }
     } catch (err) {
       setError('Failed to load reading. Please check your connection.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllReadings = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/reading/all/${selectedPlan}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setAllReadings(data.readings);
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError('Failed to load readings. Please check your connection.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -118,14 +144,6 @@ function App() {
             Love God, Love People, and Make Disciples.
           </p>
         </div>
-        <button
-          className="theme-toggle"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙' : '☀️'}
-        </button>
       </header>
 
       <main className="container">
@@ -145,10 +163,36 @@ function App() {
           </div>
         </div>
 
+        <div className="view-toggle">
+          <button
+            className={`view-button ${view === 'today' ? 'active' : ''}`}
+            onClick={() => setView('today')}
+          >
+            Today's Reading
+          </button>
+          <button
+            className={`view-button ${view === 'all' ? 'active' : ''}`}
+            onClick={() => setView('all')}
+          >
+            All Readings
+          </button>
+        </div>
+
         <div className="reading-card">
-          <div className="date-header">
-            <h2>{formatDate()}</h2>
-          </div>
+          {view === 'today' && (
+            <div className="date-header">
+              <h2>{formatDate()}</h2>
+            </div>
+          )}
+
+          {view === 'all' && (
+            <div className="date-header">
+              <h2>All Readings - {plans[selectedPlan].name}</h2>
+              <p className="overview-subtitle">
+                Track your progress and catch up on missed readings
+              </p>
+            </div>
+          )}
 
           {loading && <div className="loading">Loading today's reading...</div>}
 
@@ -161,7 +205,7 @@ function App() {
             </div>
           )}
 
-          {!loading && !error && todayReading && (
+          {!loading && !error && view === 'today' && todayReading && (
             <div className="reading-content">
               <div className="reading-header">
                 <h3>Today's Reading</h3>
@@ -204,6 +248,56 @@ function App() {
               </div>
             </div>
           )}
+
+          {!loading && !error && view === 'all' && allReadings && (
+            <div className="all-readings-content">
+              {Object.entries(
+                allReadings.reduce((acc, reading) => {
+                  const monthName = reading.month_name || `Month ${reading.month}`;
+                  if (!acc[monthName]) acc[monthName] = [];
+                  acc[monthName].push(reading);
+                  return acc;
+                }, {})
+              ).map(([monthName, readings]) => (
+                <div key={monthName} className="month-section">
+                  <h3 className="month-header">{monthName}</h3>
+                  <div className="readings-grid">
+                    {readings.map((reading) => {
+                      const key = getReadingKey(reading);
+                      const completed = isCompleted(reading);
+                      return (
+                        <div key={key} className={`reading-item ${completed ? 'completed' : ''}`}>
+                          <div className="reading-item-header">
+                            <span className="reading-date">Day {reading.day}</span>
+                            <button
+                              className="toggle-complete-small"
+                              onClick={() => toggleCompleted(key)}
+                              title={completed ? 'Mark incomplete' : 'Mark complete'}
+                            >
+                              {completed ? '✓' : '○'}
+                            </button>
+                          </div>
+                          <div className="reading-item-passages">
+                            {reading.reading.split(',').map((passage, i) => (
+                              <span key={i} className="small-passage">
+                                {passage.trim()}
+                              </span>
+                            ))}
+                          </div>
+                          <button
+                            className="read-button-small"
+                            onClick={() => openBibleGateway(reading.reading)}
+                          >
+                            Read
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="info-section">
@@ -224,6 +318,15 @@ function App() {
       <footer className="footer">
         <p>Bible text provided by Bible Gateway</p>
       </footer>
+
+      <button
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label="Toggle theme"
+        title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      >
+        {theme === 'light' ? '🌙' : '☀️'}
+      </button>
     </div>
   );
 }
