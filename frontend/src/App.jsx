@@ -252,26 +252,41 @@ function App() {
           {!loading && !error && view === 'all' && allReadings && (
             <div className="all-readings-content">
               {Object.entries(
-                allReadings.reduce((acc, reading) => {
+                allReadings.reduce((acc, reading, index) => {
+                  // Calculate year and day within year for multi-year plans
+                  const yearNumber = Math.floor(index / 365) + 1;
+                  const dayInYear = (index % 365) + 1;
+
                   const monthName = reading.month_name || `Month ${reading.month}`;
-                  if (!acc[monthName]) acc[monthName] = [];
-                  acc[monthName].push(reading);
+                  const yearKey = `Year ${yearNumber} - ${monthName}`;
+
+                  if (!acc[yearKey]) acc[yearKey] = [];
+                  acc[yearKey].push({ ...reading, yearNumber, dayInYear, originalIndex: index });
                   return acc;
                 }, {})
-              ).map(([monthName, readings]) => (
-                <div key={monthName} className="month-section">
-                  <h3 className="month-header">{monthName}</h3>
+              ).map(([yearMonth, readings]) => (
+                <div key={yearMonth} className="month-section">
+                  <h3 className="month-header">{yearMonth}</h3>
                   <div className="readings-grid">
                     {readings.map((reading) => {
-                      const key = getReadingKey(reading);
-                      const completed = isCompleted(reading);
+                      const key = `${selectedPlan}-${reading.originalIndex}`;
+                      const completed = completedReadings[key];
                       return (
                         <div key={key} className={`reading-item ${completed ? 'completed' : ''}`}>
                           <div className="reading-item-header">
                             <span className="reading-date">Day {reading.day}</span>
                             <button
                               className="toggle-complete-small"
-                              onClick={() => toggleCompleted(key)}
+                              onClick={() => {
+                                const newCompleted = { ...completedReadings };
+                                if (newCompleted[key]) {
+                                  delete newCompleted[key];
+                                } else {
+                                  newCompleted[key] = new Date().toISOString();
+                                }
+                                setCompletedReadings(newCompleted);
+                                localStorage.setItem('completedReadings', JSON.stringify(newCompleted));
+                              }}
                               title={completed ? 'Mark incomplete' : 'Mark complete'}
                             >
                               {completed ? '✓' : '○'}
