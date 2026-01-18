@@ -260,18 +260,26 @@ function App() {
                   const monthName = reading.month_name || `Month ${reading.month}`;
                   const yearKey = `Year ${yearNumber} - ${monthName}`;
 
-                  if (!acc[yearKey]) acc[yearKey] = [];
-                  acc[yearKey].push({ ...reading, yearNumber, dayInYear, originalIndex: index });
+                  if (!acc[yearKey]) {
+                    acc[yearKey] = {
+                      readings: [],
+                      yearNumber: yearNumber,
+                      monthNumber: reading.month
+                    };
+                  }
+                  acc[yearKey].readings.push({ ...reading, yearNumber, dayInYear, originalIndex: index });
                   return acc;
                 }, {})
               ).sort((a, b) => {
-                // Sort by the first reading's original index to maintain chronological order
-                return a[1][0].originalIndex - b[1][0].originalIndex;
-              }).map(([yearMonth, readings]) => (
+                // Sort by year first, then by month number
+                const yearDiff = a[1].yearNumber - b[1].yearNumber;
+                if (yearDiff !== 0) return yearDiff;
+                return a[1].monthNumber - b[1].monthNumber;
+              }).map(([yearMonth, data]) => (
                 <div key={yearMonth} className="month-section">
                   <h3 className="month-header">{yearMonth}</h3>
                   <div className="readings-grid">
-                    {readings.map((reading) => {
+                    {data.readings.map((reading) => {
                       const key = `${selectedPlan}-${reading.originalIndex}`;
                       const completed = completedReadings[key];
                       return (
