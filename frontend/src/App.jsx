@@ -264,7 +264,10 @@ function App() {
                   acc[yearKey].push({ ...reading, yearNumber, dayInYear, originalIndex: index });
                   return acc;
                 }, {})
-              ).map(([yearMonth, readings]) => (
+              ).sort((a, b) => {
+                // Sort by the first reading's original index to maintain chronological order
+                return a[1][0].originalIndex - b[1][0].originalIndex;
+              }).map(([yearMonth, readings]) => (
                 <div key={yearMonth} className="month-section">
                   <h3 className="month-header">{yearMonth}</h3>
                   <div className="readings-grid">
